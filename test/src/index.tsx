@@ -29,7 +29,9 @@ function MeasuredBox({ color, offsetSize }: { color: string; offsetSize: boolean
 
   const rendersCount = useRef(0)
   rendersCount.current++
-  const [big, setBig] = useState(false)
+
+  const sizeRef = useRef(false)
+  const size = useMotionValue(250)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
@@ -56,8 +58,14 @@ function MeasuredBox({ color, offsetSize }: { color: string; offsetSize: boolean
         x.set(bounds.left.get())
         y.set(bounds.top.get())
       }}
-      onClick={() => setBig(!big)}
-      size={big ? 350 : 250}
+      onClick={() => {
+        sizeRef.current = !sizeRef.current
+        size.set(sizeRef.current ? 350 : 250)
+      }}
+      style={{
+        width: size,
+        height: size,
+      }}
       color={color}>
       <span>Renders count</span>
       <span>{rendersCount.current}</span>

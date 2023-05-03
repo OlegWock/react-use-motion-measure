@@ -61,9 +61,7 @@ export const Button = styled.button`
   }
 `
 
-const Box = styled(motion.div)<{ size: number; color: string }>`
-  width: ${(props) => props.size}px;
-  height: ${(props) => props.size}px;
+const Box = styled(motion.div)<{ color: string }>`
   background-color: ${(props) => props.color};
   transition: 0.5s;
   cursor: pointer;

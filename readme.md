@@ -8,6 +8,10 @@ This small tool will measure the boundaries (for instance width, height, top, le
 
 This is fork of [react-use-measure](https://github.com/pmndrs/react-use-measure) modified to use MotionValue (from Framer Motion) instead of state. This allows to avoid unnecessary re-renders if you use element size/position only in animation. Everything else is same as in original package, for options and more info refer to its readme.
 
+**This project uses Framer Motion as peer dependency, don't forget to install it.**
+
+You can try live demo [here](https://codesandbox.io/s/react-use-motion-measure-demo-eej9m3).
+
 # Usage
 
 ```jsx
@@ -16,7 +20,8 @@ import useMotionMeasure from 'react-use-motion-measure'
 function App() {
   const [ref, bounds] = useMotionMeasure()
 
-  // bounds.x, bounds.width, etc are MotionValue<number> and will be updated if component changes size
+  // bounds.x, bounds.width, etc are MotionValue<number>
+  // and will be updated if component changes size
 
   return <div ref={ref} />
 }
