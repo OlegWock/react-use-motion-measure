@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react'
-import ReactDOM from 'react-dom'
-import useMeasure from 'react-use-measure'
-import { useSpring, animated as a } from 'react-spring'
+import { createRoot } from 'react-dom/client'
+import useMotionMeasure from 'react-use-motion-measure'
 import { Global, Container, Box, ScrollArea, ScrollContent, Button } from './styles'
+import { MotionValue, motion, useMotionValue, useTransform } from 'framer-motion'
 
 function ScrollBox({ size, color, children }: { size: number | string; color: string; children: any }) {
   const scrollBoxRef = React.useRef<HTMLDivElement | null>(null)
@@ -24,43 +24,54 @@ function ScrollBox({ size, color, children }: { size: number | string; color: st
 
 function MeasuredBox({ color, offsetSize }: { color: string; offsetSize: boolean }) {
   // This line is all you need ...
-  const [ref, bounds] = useMeasure({ scroll: true, debounce: { scroll: 0, resize: 0 }, offsetSize: offsetSize })
+  const [ref, bounds] = useMotionMeasure({ scroll: true, debounce: { scroll: 0, resize: 0 }, offsetSize: offsetSize })
   // The rest is just for effects, hover and mouse tracking
-  const prev = useRef(bounds)
+
+  const rendersCount = useRef(0)
+  rendersCount.current++
   const [big, setBig] = useState(false)
-  const [hovered, setHover] = useState(false)
-  const [xy, setXY] = useState([0, 0])
-  const [springs, set] = useSpring(() => Object.keys(bounds).reduce((acc, key) => ({ ...acc, [key]: 0 }), {}))
-  useEffect(() => {
-    set(Object.keys(bounds).reduce((acc, key) => ({ ...acc, [key]: prev.current[key] !== bounds[key] ? 1 : 0 }), {}))
-    prev.current = { ...bounds }
-  }, [bounds, set])
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const xFinal = useTransform<number, string>([bounds.left, x], ([left, x]) => {
+    return `${Math.round(x - left)}px`
+  })
+  const yFinal = useTransform<number, string>([bounds.top, y], ([top, y]) => {
+    return `${Math.round(y - top)}px`
+  })
+
+  const transformedBounds: Record<string, MotionValue<string>> = {}
+  Object.keys(bounds).map(
+    (key) => (transformedBounds[key] = useTransform<number, string>(bounds[key], (val) => Math.round(val) + 'px')) // eslint-disable-line
+  )
 
   return (
     <Box
       ref={ref}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onMouseMove={({ clientX, clientY }) => setXY([clientX, clientY])}
+      onMouseMove={({ clientX, clientY }) => {
+        x.set(clientX)
+        y.set(clientY)
+      }}
+      onMouseLeave={() => {
+        x.set(bounds.left.get())
+        y.set(bounds.top.get())
+      }}
       onClick={() => setBig(!big)}
-      size={big ? 270 : 235}
+      size={big ? 350 : 250}
       color={color}>
-      {Object.keys(bounds).map((key) => (
+      <span>Renders count</span>
+      <span>{rendersCount.current}</span>
+      {Object.keys(transformedBounds).map((key) => (
         <Fragment key={key}>
           <span>{key}</span>
-          <a.span style={{ background: (springs as any)[key].interpolate((o: any) => `rgba(0,0,0,${o})`) }}>
-            {Math.round(bounds[key])}px
-          </a.span>
+          <motion.span>{transformedBounds[key]}</motion.span>
         </Fragment>
       ))}
-      {hovered && (
-        <>
-          <span>mouse x</span>
-          <span>{Math.round(xy[0] - bounds.left)}px</span>
-          <span>mouse y</span>
-          <span>{Math.round(xy[1] - bounds.top)}px</span>
-        </>
-      )}
+
+      <span>mouse x</span>
+      <motion.span>{xFinal}</motion.span>
+      <span>mouse y</span>
+      <motion.span>{yFinal}</motion.span>
     </Box>
   )
 }
@@ -69,6 +80,7 @@ function Example() {
   const [offsetSize, setOffsetSize] = useState(false)
   return (
     <>
+      {/* @ts-ignore */}
       <Global color="white" />
       <div style={{ width: '150vw', height: '150vh', marginLeft: '-25vw', paddingTop: '20vh' }}>
         <Container scale={0.9}>
@@ -87,4 +99,5 @@ function Example() {
   )
 }
 
-ReactDOM.render(<Example />, document.getElementById('root'))
+const root = createRoot(document.getElementById('root')!)
+root.render(<Example />)

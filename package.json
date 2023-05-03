@@ -1,5 +1,5 @@
 {
-  "name": "react-use-measure",
+  "name": "react-use-motion-measure",
   "version": "2.1.1",
   "description": "measure view bounds",
   "main": "./dist/web.cjs.js",
@@ -11,8 +11,6 @@
     "build": "rollup -c",
     "prepare": "npm run build",
     "eslint": "eslint src/**/*.{js,ts,jsx,tsx}",
-    "test": "karma start --single-run",
-    "test:watch": "karma start",
     "typecheck": "tsc --noEmit --strict --jsx react src/*",
     "typegen": "tsc || true && prettier types/**/** --write"
   },
@@ -46,6 +44,7 @@
   ],
   "license": "MIT",
   "peerDependencies": {
+    "framer-motion": ">=8.0.0",
     "react": ">=16.13",
     "react-dom": ">=16.13"
   },
@@ -80,6 +79,7 @@
     "eslint-plugin-react": "^7.27.1",
     "eslint-plugin-react-hooks": "^4.3.0",
     "expect": "^27.3.1",
+    "framer-motion": "^10.12.7",
     "husky": "^4.3.8",
     "karma": "^6.3.9",
     "karma-chrome-launcher": "^3.1.0",

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import createDebounce from 'debounce'
+import { MotionValue, useMotionValue } from 'framer-motion'
 
 declare type ResizeObserverCallback = (entries: any[], observer: ResizeObserver) => void
 declare class ResizeObserver {
@@ -10,7 +11,7 @@ declare class ResizeObserver {
   static toString(): string
 }
 
-export interface RectReadOnly {
+interface RectReadOnly {
   readonly x: number
   readonly y: number
   readonly width: number
@@ -22,9 +23,21 @@ export interface RectReadOnly {
   [key: string]: number
 }
 
+export interface MotionRectReadOnly {
+  readonly x: MotionValue<number>
+  readonly y: MotionValue<number>
+  readonly width: MotionValue<number>
+  readonly height: MotionValue<number>
+  readonly top: MotionValue<number>
+  readonly right: MotionValue<number>
+  readonly bottom: MotionValue<number>
+  readonly left: MotionValue<number>
+  [key: string]: MotionValue<number>
+}
+
 type HTMLOrSVGElement = HTMLElement | SVGElement
 
-type Result = [(element: HTMLOrSVGElement | null) => void, RectReadOnly, () => void]
+type Result = [ref: (element: HTMLOrSVGElement | null) => void, bounds: MotionRectReadOnly, forceRefresh: () => void]
 
 type State = {
   element: HTMLOrSVGElement | null
@@ -40,7 +53,7 @@ export type Options = {
   offsetSize?: boolean
 }
 
-function useMeasure(
+function useMotionMeasure(
   { debounce, scroll, polyfill, offsetSize }: Options = { debounce: 0, scroll: false, offsetSize: false }
 ): Result {
   const ResizeObserver =
@@ -48,23 +61,26 @@ function useMeasure(
 
   if (!ResizeObserver) {
     throw new Error(
-      'This browser does not support ResizeObserver out of the box. See: https://github.com/react-spring/react-use-measure/#resize-observer-polyfills'
+      'This browser does not support ResizeObserver out of the box. See: https://github.com/OlegWock/react-use-motion-measure/#resize-observer-polyfills'
     )
   }
 
-  const [bounds, set] = useState<RectReadOnly>({
-    left: 0,
-    top: 0,
-    width: 0,
-    height: 0,
-    bottom: 0,
-    right: 0,
-    x: 0,
-    y: 0,
-  })
+  const left = useMotionValue(0)
+  const top = useMotionValue(0)
+  const width = useMotionValue(0)
+  const height = useMotionValue(0)
+  const bottom = useMotionValue(0)
+  const right = useMotionValue(0)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
 
   // keep all state in a ref
-  const state = useRef<State>({ element: null, scrollContainers: null, resizeObserver: null, lastBounds: bounds })
+  const state = useRef<State>({
+    element: null,
+    scrollContainers: null,
+    resizeObserver: null,
+    lastBounds: getLastBounds(),
+  })
 
   // set actual debounce values early, so effects know if they should react accordingly
   const scrollDebounce = debounce ? (typeof debounce === 'number' ? debounce : debounce.scroll) : null
@@ -81,16 +97,8 @@ function useMeasure(
   const [forceRefresh, resizeChange, scrollChange] = useMemo(() => {
     const callback = () => {
       if (!state.current.element) return
-      const {
-        left,
-        top,
-        width,
-        height,
-        bottom,
-        right,
-        x,
-        y,
-      } = (state.current.element.getBoundingClientRect() as unknown) as RectReadOnly
+      const { left, top, width, height, bottom, right, x, y } =
+        state.current.element.getBoundingClientRect() as unknown as RectReadOnly
 
       const size = {
         left,
@@ -109,7 +117,9 @@ function useMeasure(
       }
 
       Object.freeze(size)
-      if (mounted.current && !areBoundsEqual(state.current.lastBounds, size)) set((state.current.lastBounds = size))
+      if (mounted.current && !areBoundsEqual(state.current.lastBounds, size)) {
+        set((state.current.lastBounds = size))
+      }
     }
     return [
       callback,
@@ -143,6 +153,30 @@ function useMeasure(
     }
   }
 
+  function getLastBounds() {
+    return {
+      left: left.get(),
+      top: top.get(),
+      width: width.get(),
+      height: height.get(),
+      bottom: bottom.get(),
+      right: right.get(),
+      x: x.get(),
+      y: y.get(),
+    }
+  }
+
+  function set(bounds: RectReadOnly) {
+    left.set(bounds.left)
+    top.set(bounds.top)
+    width.set(bounds.width)
+    height.set(bounds.height)
+    bottom.set(bounds.bottom)
+    right.set(bounds.right)
+    x.set(bounds.x)
+    y.set(bounds.y)
+  }
+
   // the ref we expose to the user
   const ref = (node: HTMLOrSVGElement | null) => {
     if (!node || node === state.current.element) return
@@ -164,7 +198,7 @@ function useMeasure(
 
   // remove all listeners when the components unmounts
   useEffect(() => removeListeners, [])
-  return [ref, bounds, forceRefresh]
+  return [ref, { left, top, width, height, bottom, right, x, y }, forceRefresh]
 }
 
 // Adds native resize listener to window
@@ -198,4 +232,4 @@ function findScrollContainers(element: HTMLOrSVGElement | null): HTMLOrSVGElemen
 const keys: (keyof RectReadOnly)[] = ['x', 'y', 'top', 'bottom', 'left', 'right', 'width', 'height']
 const areBoundsEqual = (a: RectReadOnly, b: RectReadOnly): boolean => keys.every((key) => a[key] === b[key])
 
-export default useMeasure
+export default useMotionMeasure

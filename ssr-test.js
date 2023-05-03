@@ -5,11 +5,11 @@ require('@babel/register')({
 })
 const React = require('react')
 const ReactDOMServer = require('react-dom/server')
-const useMeasure = require('./src/web/index.ts')
+const useMotionMeasure = require('./src/web/index.ts')
 const expect = require('expect')
 
 function Test() {
-  const [ref] = useMeasure()
+  const [ref] = useMotionMeasure()
 
   return React.createElement(
     'div',

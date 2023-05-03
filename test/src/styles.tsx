@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import styled, { createGlobalStyle } from 'styled-components'
 
 const Global = createGlobalStyle<{ color: string }>`
@@ -37,9 +38,9 @@ const Global = createGlobalStyle<{ color: string }>`
 
 export const Container = styled.div<{ scale: number }>`
   transform: scale(${(props) => props.scale});
-  display:flex;
+  display: flex;
   flex-direction: column;
-  justify-content; center;
+  justify-content: center;
 `
 
 export const Button = styled.button`
@@ -60,7 +61,7 @@ export const Button = styled.button`
   }
 `
 
-const Box = styled.div<{ size: number; color: string }>`
+const Box = styled(motion.div)<{ size: number; color: string }>`
   width: ${(props) => props.size}px;
   height: ${(props) => props.size}px;
   background-color: ${(props) => props.color};

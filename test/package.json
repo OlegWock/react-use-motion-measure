@@ -4,11 +4,11 @@
   "private": true,
   "dependencies": {
     "@types/styled-components": "^5.1.15",
+    "framer-motion": "^10.12.7",
     "react": "link:../node_modules/react",
     "react-dom": "link:../node_modules/react-dom",
-    "react-scripts": "4.0.3",
-    "react-spring": "^9.3.2",
-    "react-use-measure": "link:..",
+    "react-scripts": "5.0.1",
+    "react-use-motion-measure": "link:..",
     "styled-components": "^5.3.3"
   },
   "devDependencies": {
