@@ -41,6 +41,7 @@ type Result = [ref: (element: HTMLOrSVGElement | null) => void, bounds: MotionRe
 
 type State = {
   element: HTMLOrSVGElement | null
+  measuredAtLeastOnce: boolean
   scrollContainers: HTMLOrSVGElement[] | null
   resizeObserver: ResizeObserver | null
   lastBounds: RectReadOnly
@@ -77,6 +78,7 @@ function useMotionMeasure(
   // keep all state in a ref
   const state = useRef<State>({
     element: null,
+    measuredAtLeastOnce: false,
     scrollContainers: null,
     resizeObserver: null,
     lastBounds: getLastBounds(),
@@ -118,7 +120,11 @@ function useMotionMeasure(
 
       Object.freeze(size)
       if (mounted.current && !areBoundsEqual(state.current.lastBounds, size)) {
-        set((state.current.lastBounds = size))
+        if (state.current.measuredAtLeastOnce) {
+          set((state.current.lastBounds = size))
+        } else {
+          jump((state.current.lastBounds = size))
+        }
       }
     }
     return [
@@ -126,7 +132,7 @@ function useMotionMeasure(
       resizeDebounce ? createDebounce(callback, resizeDebounce) : callback,
       scrollDebounce ? createDebounce(callback, scrollDebounce) : callback,
     ]
-  }, [set, offsetSize, scrollDebounce, resizeDebounce])
+  }, [set, jump, offsetSize, scrollDebounce, resizeDebounce])
 
   // cleanup current scroll-listeners / observers
   function removeListeners() {
@@ -177,11 +183,23 @@ function useMotionMeasure(
     y.set(bounds.y)
   }
 
+  function jump(bounds: RectReadOnly) {
+    left.jump(bounds.left)
+    top.jump(bounds.top)
+    width.jump(bounds.width)
+    height.jump(bounds.height)
+    bottom.jump(bounds.bottom)
+    right.jump(bounds.right)
+    x.jump(bounds.x)
+    y.jump(bounds.y)
+  }
+
   // the ref we expose to the user
   const ref = (node: HTMLOrSVGElement | null) => {
     if (!node || node === state.current.element) return
     removeListeners()
     state.current.element = node
+    state.current.measuredAtLeastOnce = false
     state.current.scrollContainers = findScrollContainers(node)
     addListeners()
   }

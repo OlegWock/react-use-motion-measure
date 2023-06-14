@@ -1,6 +1,6 @@
 {
   "name": "react-use-motion-measure",
-  "version": "2.1.1",
+  "version": "3.0.0",
   "description": "measure view bounds",
   "main": "./dist/web.cjs.js",
   "module": "./dist/web.js",
