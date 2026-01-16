@@ -6,9 +6,9 @@
 
 This small tool will measure the boundaries (for instance width, height, top, left) of a view you reference. It is reactive and responds to changes in size, window-scroll and nested-area-scroll.
 
-This is fork of [react-use-measure](https://github.com/pmndrs/react-use-measure) modified to use MotionValue (from Framer Motion) instead of state. This allows to avoid unnecessary re-renders if you use element size/position only in animation. Everything else is same as in original package, for options and more info refer to its readme.
+This is fork of [react-use-measure](https://github.com/pmndrs/react-use-measure) modified to use MotionValue (from [Motion](https://motion.dev/)) instead of state. This allows to avoid unnecessary re-renders if you use element size/position only in animation. Everything else is same as in original package, for options and more info refer to its readme.
 
-**This project uses Framer Motion as peer dependency, don't forget to install it.**
+**This project uses Motion as peer dependency, don't forget to install it.**
 
 You can try live demo [here](https://codesandbox.io/s/react-use-motion-measure-demo-eej9m3).
 

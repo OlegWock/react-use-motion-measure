@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import createDebounce from 'debounce'
-import { MotionValue, useMotionValue } from 'framer-motion'
+import { MotionValue, useMotionValue } from 'motion/react'
 
 declare type ResizeObserverCallback = (entries: any[], observer: ResizeObserver) => void
 declare class ResizeObserver {

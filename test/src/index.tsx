@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import useMotionMeasure from 'react-use-motion-measure'
 import { Global, Container, Box, ScrollArea, ScrollContent, Button } from './styles'
-import { MotionValue, motion, useMotionValue, useTransform } from 'framer-motion'
+import { MotionValue, motion, useMotionValue, useTransform } from 'motion/react'
 
 function ScrollBox({ size, color, children }: { size: number | string; color: string; children: any }) {
   const scrollBoxRef = React.useRef<HTMLDivElement | null>(null)
